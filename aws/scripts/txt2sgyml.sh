@@ -6,7 +6,7 @@
 #
 #  Generate part of security group.
 #
-#  INPUT FROMAT.... each item separate SPACE. 
+#  INPUT FROMAT.... each items separated by SPACE. 
 #
 #    TYPE               IPversion    Type         Protocol     FromPort ToPort Network/Host     Description
 #    Inbound/Outbound   IPv4/IPv6    HTTP,RDS...  TCP/ICMP/UDP 0        65535  192.168.10.0/24  description_of_rule.
@@ -16,12 +16,7 @@
 test -f $1 || exit
 
 
-# Configuration
-DESC="DEFAULT_NAME"
-
-
 input=$1
-test -z $DESC && exit
 
 printHeader() {
 	echo "AWSTemplateFormatVersion: \"2010-09-09\""
@@ -71,7 +66,6 @@ for action in "Inbound" "Outbound"; do
 			targetip=$(echo $line | cut -d " " -f 7)
 			fromport=$(echo $line | cut -d " " -f 5 | sed -e "s/すべて/0/" -e "s/Any/0/")
 			toport=$(echo $line | cut -d " " -f 6 | sed -e "s/すべて/65535/" -e "s/Any/65535/")
-			#desc=$(echo $line | cut -d " " -f 8- | tr -d '\r\n')
 			desc=$(echo $line | cut -d " " -f 8 | tr -d '\r\n' | tr -d "–" )
 			if [ "$desc" == "ping" ]; then
 				fromport="-1"
