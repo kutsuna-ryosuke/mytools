@@ -2,11 +2,9 @@
 #
 #  txt2sgyml.sh
 #
-#  Copyright Ryosuke KUTSUNA <kutsuna@serverworks.co.jp>
-#
 #  Generate part of security group.
 #
-#  INPUT FROMAT.... each items separated by SPACE. 
+#  INPUT FROMAT.... each item separate SPACE. 
 #
 #    TYPE               IPversion    Type         Protocol     FromPort ToPort Network/Host     Description
 #    Inbound/Outbound   IPv4/IPv6    HTTP,RDS...  TCP/ICMP/UDP 0        65535  192.168.10.0/24  description_of_rule.
@@ -16,7 +14,12 @@
 test -f $1 || exit
 
 
+# Configuration
+DESC="DEFAULT_NAME"
+
+
 input=$1
+test -z $DESC && exit
 
 printHeader() {
 	echo "AWSTemplateFormatVersion: \"2010-09-09\""
@@ -60,13 +63,19 @@ for action in "Inbound" "Outbound"; do
 
 			# pre action
 			l1=$line
-			line=$(echo $l1 | sed -e "s/すべてのICMP - IPv4/icmp/")
+			line=$(echo $l1 | sed -e "s/すべての /すべての/" -e "s/カスタム /カスタム/" -e "s/ICMP - IPv4/ICMP/")
 
-			protocol=$(echo $line | cut -d " " -f 4 | sed -e "s/すべての//" -e "s/カスタム//" -e "s/すべて/-1/")
+			echo "line: $line"
+
+			protocol=$(echo $line | cut -d " " -f 4 | sed -e "s/\s//" -e "s/すべての//" -e "s/カスタム//" -e "s/すべて/-1/")
+			if [ $protocol == "-" ]; then
+				protocol="ICMP"
+			fi
 			targetip=$(echo $line | cut -d " " -f 7)
 			fromport=$(echo $line | cut -d " " -f 5 | sed -e "s/すべて/0/" -e "s/Any/0/")
 			toport=$(echo $line | cut -d " " -f 6 | sed -e "s/すべて/65535/" -e "s/Any/65535/")
-			desc=$(echo $line | cut -d " " -f 8 | tr -d '\r\n' | tr -d "–" )
+			#desc=$(echo $line | cut -d " " -f 8- | tr -d '\r\n')
+			desc=$(echo $line | cut -d " " -f 8- | tr -d '\r\n' | tr -d "–" )
 			if [ "$desc" == "ping" ]; then
 				fromport="-1"
 				toport="-1"
