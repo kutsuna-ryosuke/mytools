@@ -65,8 +65,6 @@ for action in "Inbound" "Outbound"; do
 			l1=$line
 			line=$(echo $l1 | sed -e "s/すべての /すべての/" -e "s/カスタム /カスタム/" -e "s/ICMP - IPv4/ICMP/")
 
-			echo "line: $line"
-
 			protocol=$(echo $line | cut -d " " -f 4 | sed -e "s/\s//" -e "s/すべての//" -e "s/カスタム//" -e "s/すべて/-1/")
 			if [ $protocol == "-" ]; then
 				protocol="ICMP"
