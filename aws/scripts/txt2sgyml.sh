@@ -15,6 +15,8 @@ test -f $1 || exit
 
 
 # Configuration
+#DESC="DEFAULT_NAME"
+title=$(basename $1 .csv)
 DESC="DEFAULT_NAME"
 
 
@@ -23,7 +25,7 @@ test -z $DESC && exit
 
 printHeader() {
 	echo "AWSTemplateFormatVersion: \"2010-09-09\""
-	echo "Description: \"${DESC}\""
+	echo "Description: \"${title}\""
 	echo "Parameters:"
 	echo "  VpcId:"
 	echo "    Description: \"Required. Select VPC\""
@@ -37,8 +39,8 @@ printResourceHeader() {
         echo "    Type: \"AWS::EC2::SecurityGroup\""
         echo "    DeletionPolicy: \"Delete\""
         echo "    Properties:"
-        echo "      GroupDescription: \"for ${DESC}\""
-        echo "      GroupName: \"${DESC}\""
+        echo "      GroupDescription: \"for ${title}\""
+        echo "      GroupName: \"${title}\""
 }
 
 convertDescription() {
